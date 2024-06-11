@@ -5,7 +5,8 @@ const cors = require('cors');
 dotenv.config();
 
 const userRoutes = require('./routes/userRoutes');
-const { protect } = require('./middlewares/auth'); 
+const pdfRoutes = require('./routes/pdfRoutes');
+const { protect } = require('./middlewares/auth');
 
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/users', userRoutes);
+app.use('/api/pdfs',pdfRoutes);
 
 
 mongoose.connect(process.env.MONGO_URI, {}).then(() => console.log('MongoDB connected'))
