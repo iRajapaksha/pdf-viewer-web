@@ -1,6 +1,7 @@
 const PDF = require('../models/pdf');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 // Configure multer for file storage
 const storage = multer.diskStorage({
@@ -50,7 +51,52 @@ const getPDFs = async (req, res) => {
     }
 };
 
-module.exports = { upload, uploadPDF, getPDFs };
+const getOnePdf = async (req, res) => {
+    try {
+        const pdfId = req.params.id;
+        const pdf = await PDF.findById(pdfId);
+
+        if (!pdf) {
+            return res.status(404).json({ error: 'PDF not found' });
+        }
+
+        const pdfUrl = `${req.protocol}://${req.get('host')}/uploads/${pdf.filename}`;
+        res.status(200).json({ ...pdf._doc, url: pdfUrl });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+const deletePDF = async (req, res) => {
+    try {
+        const pdfId = req.params.id;
+
+        // Find the PDF by ID
+        const pdf = await PDF.findById(pdfId);
+
+        if (!pdf) {
+            return res.status(404).json({ error: 'PDF not found' });
+        }
+
+        // Delete the file from the filesystem
+        const filePath = path.join(__dirname, '../uploads', pdf.filename);
+        fs.unlink(filePath, async (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Failed to delete file' });
+            }
+
+            // Delete the PDF document from MongoDB
+            await PDF.findByIdAndDelete(pdfId);
+            res.status(200).json({ message: 'PDF deleted successfully' });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { upload, uploadPDF, getPDFs, deletePDF, getOnePdf };
 
 
 // const PDF = require('../models/pdf');
