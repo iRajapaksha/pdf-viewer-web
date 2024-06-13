@@ -1,28 +1,28 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
+import { styled, useTheme } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-    Alert,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-    Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Input = styled("input")({
   display: "none",
@@ -49,7 +49,6 @@ const HomePage = ({ auth }) => {
           Authorization: `Bearer ${auth.token}`,
         },
       });
-      console.log(response.data);
       setPdfList(response.data);
     } catch (error) {
       console.error("Failed to fetch PDFs", error);
@@ -58,17 +57,13 @@ const HomePage = ({ auth }) => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/pdfs/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        }
-      );
+      const response = await axios.delete(`http://localhost:5000/api/pdfs/${id}`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      });
 
       if (response.status === 200) {
-        // Refresh the list of PDFs after a successful deletion
         fetchPdfs();
       }
     } catch (error) {
@@ -79,16 +74,15 @@ const HomePage = ({ auth }) => {
   const handleListItemClick = async (pdf) => {
     const url = `http://localhost:5000/uploads/${pdf.filename}`;
     try {
-        const response = await axios.get(url, {
-            responseType: 'blob',
-        });
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        setPdfUrl(blob); // Set the blob directly
+      const response = await axios.get(url, {
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      setPdfUrl(URL.createObjectURL(blob));
     } catch (error) {
-        console.error('Failed to load PDF:', error);
+      console.error("Failed to load PDF:", error);
     }
-};
-
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -102,7 +96,7 @@ const HomePage = ({ auth }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (pdf != null) {
+    if (pdf) {
       const formData = new FormData();
       formData.append("pdf", pdf);
       setLoading(true);
@@ -121,8 +115,6 @@ const HomePage = ({ auth }) => {
         if (response.status === 201) {
           const url = URL.createObjectURL(pdf);
           setPdfUrl(url);
-          console.log("pdf URLis: ", url);
-          console.log("PDF uploaded successfully", response.data);
           setLoading(false);
           fetchPdfs();
         }
@@ -134,21 +126,21 @@ const HomePage = ({ auth }) => {
     }
   };
 
+  const theme = useTheme();
   const newPlugin = defaultLayoutPlugin();
 
   if (!auth.isAuthenticated) {
     return (
       <Container component="main" maxWidth="xs">
-        <Paper elevation={3} sx={{ padding: 3, textAlign: "center" }}>
+        <Paper elevation={3} sx={{ padding: 3, textAlign: "center", backgroundColor: theme.palette.background.paper }}>
           <Typography variant="h6" gutterBottom>
             Please login first
           </Typography>
           <Button
             variant="contained"
             color="primary"
-            onClick={() => {
-              navigate("/login");
-            }}
+            onClick={() => navigate("/login")}
+            sx={{ mt: 2 }}
           >
             Go back
           </Button>
@@ -159,8 +151,8 @@ const HomePage = ({ auth }) => {
 
   return (
     <Container component="main" maxWidth="md">
-      <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
-        <Typography variant="h4" gutterBottom>
+      <Paper elevation={3} sx={{ padding: 3, marginTop: 3, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h4" gutterBottom color="primary">
           Upload and View PDF
         </Typography>
         <form onSubmit={handleSubmit}>
@@ -178,6 +170,7 @@ const HomePage = ({ auth }) => {
                   component="span"
                   startIcon={<CloudUploadIcon />}
                   fullWidth
+                  sx={{ backgroundColor: theme.palette.secondary.main, "&:hover": { backgroundColor: theme.palette.secondary.dark } }}
                 >
                   Select PDF
                 </Button>
@@ -191,6 +184,7 @@ const HomePage = ({ auth }) => {
                 fullWidth
                 disabled={loading}
                 startIcon={loading && <CircularProgress size={20} />}
+                sx={{ backgroundColor: theme.palette.primary.main, "&:hover": { backgroundColor: theme.palette.primary.dark } }}
               >
                 {loading ? "Uploading..." : "Upload PDF"}
               </Button>
@@ -203,10 +197,10 @@ const HomePage = ({ auth }) => {
           )}
         </form>
         <Box mt={4}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom color="primary">
             Uploaded PDFs
           </Typography>
-          <Paper variant="outlined" sx={{ padding: 2 }}>
+          <Paper variant="outlined" sx={{ padding: 2, borderRadius: 2, boxShadow: 3 }}>
             <List>
               {pdfList.length === 0 ? (
                 <Typography
@@ -227,20 +221,22 @@ const HomePage = ({ auth }) => {
                         <IconButton
                           edge="end"
                           aria-label="delete"
-                          onClick={() => handleDelete(pdf._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(pdf._id);
+                          }}
                         >
                           <DeleteIcon />
                         </IconButton>
                       }
+                      sx={{ "&:hover": { backgroundColor: theme.palette.action.hover } }}
                     >
                       <ListItemIcon>
                         <CloudUploadIcon />
                       </ListItemIcon>
                       <ListItemText
                         primary={pdf.originalname}
-                        secondary={`Uploaded on: ${new Date(
-                          pdf.uploadDate
-                        ).toLocaleString()}`}
+                        secondary={`Uploaded on: ${new Date(pdf.uploadDate).toLocaleString()}`}
                       />
                     </ListItem>
                   ))}
@@ -250,10 +246,10 @@ const HomePage = ({ auth }) => {
           </Paper>
         </Box>
         <Box mt={4}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom color="primary">
             PDF Preview
           </Typography>
-          <Paper variant="outlined" sx={{ padding: 2, minHeight: 400 }}>
+          <Paper variant="outlined" sx={{ padding: 2, borderRadius: 2, boxShadow: 3, minHeight: 400 }}>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
               {pdfUrl ? (
                 <Viewer fileUrl={pdfUrl} plugins={[newPlugin]} />
