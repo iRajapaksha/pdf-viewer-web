@@ -19,7 +19,7 @@ function App() {
     <div className="App">
        <Router>
          <Routes>
-          <Route path="/login" element={<LoginPage setAuth={setAuth} />} />
+          <Route path="/" element={<LoginPage setAuth={setAuth} />} />
            <Route path="/register" element={<Register setAuth={setAuth} />} />
           <Route path="/home" element={<HomePage auth={auth} />} />
         </Routes>

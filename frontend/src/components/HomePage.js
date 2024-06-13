@@ -139,7 +139,7 @@ const HomePage = ({ auth }) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
             sx={{ mt: 2 }}
           >
             Go back

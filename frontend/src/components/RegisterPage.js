@@ -44,7 +44,7 @@ const RegisterPage = ({setAuth}) => {
                         </Typography>
                         <Box component="form" noValidate sx={{ mt: 3 }}>
                         <TextField
-                                onChange={(e)=>setEmail(e.target.value)}
+                                onChange={(e)=>setUsername(e.target.value)}
                                 required
                                 fullWidth
                                 id="username"
@@ -54,7 +54,7 @@ const RegisterPage = ({setAuth}) => {
                                 margin="normal"
                             />
                             <TextField
-                                onChange={(e)=>setUsername(e.target.value)}
+                                onChange={(e)=>setEmail(e.target.value)}
                                 required
                                 fullWidth
                                 id="email"
@@ -84,7 +84,7 @@ const RegisterPage = ({setAuth}) => {
                                 Signup
                             </Button>
                             <>Already have an account?{" "}
-                            <Link href="/login" variant="body2">
+                            <Link href="/" variant="body2">
                                  Login Now
                             </Link>
                             </>
