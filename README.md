@@ -13,9 +13,9 @@
 
     3. configure the .env 
 
-         MONGO_URI=mongodb+srv://nayanajithishara2541:Elf4DXvwW8j8sAm2@cluster0.an3j0kz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+         MONGO_URI= your_database_url
         JWT_SECRET=your_jwt_secret
-        PORT=5000
+        PORT=5000 // default 
 
     4. Start the backend server.
         
